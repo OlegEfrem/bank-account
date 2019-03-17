@@ -12,22 +12,23 @@ trait AccountService {
   type ToAccount   = Account
 
   /** Deposit money to the account.
-    * @param money amount to be deposited.
+    * @param money currency and amount to be deposited, amount be a positive number.
     * @param to the account to which to deposit the money.
     * @return - the new account state;
-    *         - error if account not found;
+    *         - error if account not found or money has a negative amount;
     * */
   def deposit(money: Money, to: AccountId): Future[Account]
 
   /** Withdraw money from the account.
-    * @param money amount to be withdrawn.
+    * @param money currency and amount to be withdrawn, amount must be a positive number.
     * @param from the account from which to withdraw the money.
     * @return - the new account state;
-    *         - error if account not found or overdraft attempted.
+    *         - error if account not found, money has a negative amount or overdraft attempted.
     * */
   def withdraw(money: Money, from: AccountId): Future[Account]
 
   /** Transfer money from one account to another.
+    * Note this is a rich interface function, defined only in terms of other functions of the same trait.
     * @param money amount to be transferred.
     * @param from account from which to withdraw money.
     * @param to account to whith to deposit money.
