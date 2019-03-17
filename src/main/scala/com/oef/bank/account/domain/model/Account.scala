@@ -15,7 +15,7 @@ object Account {
 
   def apply(id: AccountId, currency: String = "GBP", amount: BigDecimal = 0): Account = {
     val currencyUnit = CurrencyUnit.of(currency)
-    val money = Money.of(currencyUnit, amount.underlying())
+    val money        = Money.of(currencyUnit, amount.underlying())
     new Account(id, money)
   }
 }

@@ -3,38 +3,36 @@ package com.oef.bank.account.domain.service.implementations
 import com.oef.bank.UnitSpec
 import com.oef.bank.account.domain.model.{Account, AccountId}
 import com.oef.bank.account.domain.service.provided.DataStore
+import com.oef.bank.account.infrastructure.outbound.store.memory.InMemoryStore
 import org.joda.money.{CurrencyUnit, Money}
-import scala.concurrent.Future
+import org.scalatest.OneInstancePerTest
 
-class SimpleAccountServiceTest extends UnitSpec {
+class SimpleAccountServiceTest extends UnitSpec with OneInstancePerTest {
 
   "SimpleAccountService" - {
-    val storeStub                 = stub[DataStore]
     val accountId                 = AccountId(123, 123456)
     def money(amount: BigDecimal) = Money.of(CurrencyUnit.GBP, amount.underlying())
     val money_22                  = money(22.35)
     val account_0                 = Account(accountId)
     val account_22                = account_0.copy(balance = money_22)
-    val service                   = new SimpleAccountService(storeStub)
+    val store: DataStore          = new InMemoryStore
+    val service                   = new SimpleAccountService(store)
 
     "deposit should" - {
+      store.create(accountId)
 
       "add money to an existing account" in {
-        storeStub.read _ when * returns Future.successful(account_0)
-        storeStub.update _ when account_22 returns Future.successful(account_0)
-        service.deposit(money_22, accountId).futureValue
-        storeStub.update _ verify account_22
+        service.deposit(money_22, accountId).futureValue shouldBe account_22
+        store.read(accountId).futureValue shouldBe account_22
       }
 
       "return error for non existing account" in {
-        storeStub.read _ when accountId returns Future.failed(new IllegalArgumentException("account not found."))
-        whenReady(service.deposit(money_22, accountId).failed) { e =>
+        whenReady(service.deposit(money_22, accountId.copy(sortCode = -1)).failed) { e =>
           e shouldBe an[IllegalArgumentException]
         }
       }
 
       "forbid negative amount operation" in {
-        storeStub.read _ when * returns Future.successful(account_0)
         whenReady(service.deposit(money(-10), accountId).failed) { e =>
           e shouldBe an[IllegalArgumentException]
         }
@@ -43,16 +41,17 @@ class SimpleAccountServiceTest extends UnitSpec {
     }
 
     "withdraw should" - {
+      store.create(accountId)
 
       "withdraw money from an existing account" in {
-        storeStub.read _ when * returns Future.successful(account_22 + money_22)
-        storeStub.update _ when account_22 returns Future.successful(account_22)
-        service.withdraw(money_22, accountId).futureValue
-        storeStub.update _ verify account_22
+        val account_44 = account_22 + money_22
+        store.update(account_44)
+        store.read(accountId).futureValue shouldBe account_44
+        service.withdraw(money_22, accountId).futureValue shouldBe account_22
+        store.read(accountId).futureValue shouldBe account_22
       }
 
       "return error for non existing account" in {
-        storeStub.read _ when accountId returns Future.failed(new IllegalArgumentException("account not found."))
         whenReady(service.withdraw(money_22, accountId).failed) { e =>
           e shouldBe an[IllegalArgumentException]
         }
@@ -65,14 +64,27 @@ class SimpleAccountServiceTest extends UnitSpec {
       }
 
       "forbid overdraft" in {
-        storeStub.read _ when * returns Future.successful(Account(accountId, money(50)))
         whenReady(service.withdraw(money(100), accountId).failed) { e =>
           e shouldBe an[IllegalArgumentException]
         }
       }
     }
 
-    "transfer should" - {}
+    "transfer should" - {
+      "withdraw from source account and deposit to destination account" in {
+        val sourceAccount = Account(AccountId(1, 12), money(100))
+        store.create(sourceAccount.id)
+        store.update(sourceAccount)
+        val destinationAccount = account_0
+        store.create(destinationAccount.id)
+        val transferAmount           = money(50)
+        val sourceAfterTransfer      = sourceAccount - transferAmount
+        val destinationAfterTransfer = destinationAccount + transferAmount
+        service.transfer(transferAmount, sourceAccount.id, destinationAccount.id).futureValue shouldBe (sourceAfterTransfer, destinationAfterTransfer)
+        store.read(sourceAccount.id).futureValue shouldBe sourceAfterTransfer
+        store.read(destinationAccount.id).futureValue shouldBe destinationAfterTransfer
+      }
+    }
 
   }
 

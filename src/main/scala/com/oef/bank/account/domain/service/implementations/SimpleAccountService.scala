@@ -1,9 +1,10 @@
 package com.oef.bank.account.domain.service.implementations
 
-import com.oef.bank.account.domain.model.AccountId
+import com.oef.bank.account.domain.model.{Account, AccountId}
 import com.oef.bank.account.domain.service.AccountService
 import com.oef.bank.account.domain.service.provided.DataStore
 import org.joda.money.Money
+
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Try
@@ -33,7 +34,7 @@ class SimpleAccountService(override protected val store: DataStore) extends Acco
     * @return - the new account state;
     *         - error if account not found, money has a negative amount or overdraft attempted.
     * */
-  override def withdraw(money: Money, from: AccountId): Future[ToAccount] = {
+  override def withdraw(money: Money, from: AccountId): Future[Account] = {
     for {
       _      <- requirePositive(money)
       acc    <- store.read(from)

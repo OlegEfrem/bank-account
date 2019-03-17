@@ -37,9 +37,9 @@ trait AccountService {
     * */
   def transfer(money: Money, from: AccountId, to: AccountId): Future[(FromAccount, ToAccount)] = {
     for {
-      fromAcc <- store.read(from)
-      toAcc   <- store.read(to)
-    } yield (fromAcc - money, toAcc + money)
+      newFrom <- withdraw(money, from)
+      newTo   <- deposit(money, to)
+    } yield (newFrom, newTo)
   }
 
 }
