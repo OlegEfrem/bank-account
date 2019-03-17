@@ -1,0 +1,24 @@
+{
+  "id": 10001,
+  "name": "Alex Smith",
+  "payments": [
+    {
+      "timestamp": "ISO_DATE",
+      "amount": 100.59
+    },
+    {
+      "timestamp": "ISO_DATE",
+      "amount": 12.99
+    }
+  ],
+  "address": {
+    "first": "12 Watergarden",
+    "second": "Kings Cross",
+    "postcode": "W1 5AX",
+    "country": "UK",
+    "coordiantes": {
+      "lat": 51,
+      "lon": 0
+    }
+  }
+}
