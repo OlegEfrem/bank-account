@@ -26,6 +26,7 @@ libraryDependencies ++= {
   val jacksonVersion = "2.9.8"
   val akkaHttpVersion = "10.1.7"
   val akkaVersion = "2.5.21"
+  val jodaMoneyVersion = "1.0.1"
   Seq(
     "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion,
     "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion,
@@ -36,7 +37,8 @@ libraryDependencies ++= {
     "com.typesafe.akka" %% "akka-actor" % akkaVersion,
     "com.typesafe.akka" %% "akka-testkit" % akkaVersion % Test,
     "com.typesafe.akka" %% "akka-stream" % akkaVersion,
-    "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion % Test
+    "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion % Test,
+    "org.joda" % "joda-money" % jodaMoneyVersion
   )
 }
 
