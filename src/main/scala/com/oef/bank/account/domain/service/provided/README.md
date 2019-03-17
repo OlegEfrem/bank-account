@@ -1,0 +1,2 @@
+[Provided](../provided) package will hold all the Traits implemented by the [infrastructure](../../../infrastructure) 
+layer which provide additional functionality for the [domain service](../../service) layer.

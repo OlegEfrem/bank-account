@@ -18,7 +18,6 @@ class AccountRoutes(jsonConverter: JsonConverter) {
     }
   }
 
-
 }
 
 object AccountRoutes {

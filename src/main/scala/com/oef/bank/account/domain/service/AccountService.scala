@@ -1,26 +1,14 @@
 package com.oef.bank.account.domain.service
 
 import com.oef.bank.account.domain.model.{Account, AccountId}
+import com.oef.bank.account.domain.service.provided.DataStore
 import org.joda.money.Money
 import scala.concurrent.Future
 
 trait AccountService {
+  protected val store: DataStore
   type FromAccount = Account
-  type ToAccount = Account
-
-  /** Create a new account.
-    * @param account details of the account to be created.
-    * @return - the newly created account;
-    *         - error if account exists or negative amount provided.
-    * */
-  def create(account: Account): Future[Account]
-
-  /** Read account details.
-    * @param accountBy account sort code and number to read details for.
-    * @return - the read account if found;
-    *         - error if account not found.
-    * */
-  def read(accountBy: AccountId): Future[Account]
+  type ToAccount   = Account
 
   /** Deposit money to the account.
     * @param money amount to be deposited.
@@ -47,18 +35,11 @@ trait AccountService {
     * */
   def transfer(money: Money, from: AccountId, to: AccountId): Future[(FromAccount, ToAccount)] = {
     for {
-      fromAcc <- read(from)
-      toAcc <- read(to)
+      fromAcc    <- store.read(from)
+      toAcc      <- store.read(to)
       newFromAcc <- fromAcc.withdraw(money)
-      newToAcc <- toAcc.deposit(money)
+      newToAcc   <- toAcc.deposit(money)
     } yield (newFromAcc, newToAcc)
   }
-
-  /** Delete an account.
-    * @param accountWith details fo the account to be deleted.
-    * @return success, even if the account previously didn't exist.
-    *         Done in this way to avoid reading an account before deleting it.
-    * */
-  def delete(accountWith: AccountId): Future[Unit]
 
 }
