@@ -39,7 +39,7 @@ trait AccountService {
     for {
       fromAcc <- store.read(from)
       toAcc   <- store.read(to)
-    } yield (fromAcc.withdraw(money), toAcc.deposit(money))
+    } yield (fromAcc - money, toAcc + money)
   }
 
 }

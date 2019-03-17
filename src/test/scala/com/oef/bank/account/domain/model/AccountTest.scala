@@ -11,35 +11,24 @@ class AccountTest extends UnitSpec {
     val id         = AccountId(123, 123456)
     val gbpAccount = Account(id, gbp)
 
-    "deposit should" - {
+    "plus (+) should" - {
       "allow same currency operation" in {
-        gbpAccount deposit gbp shouldBe gbpAccount.copy(balance = gbpAccount.balance plus gbp)
+        gbpAccount + gbp shouldBe gbpAccount.copy(balance = gbpAccount.balance plus gbp)
       }
 
       "forbid different currency operation" in {
-        a[CurrencyMismatchException] shouldBe thrownBy { gbpAccount deposit usd }
+        a[CurrencyMismatchException] shouldBe thrownBy { gbpAccount + usd }
       }
 
-      "forbid negative amount operation" in {
-        a[IllegalArgumentException] shouldBe thrownBy { gbpAccount deposit gbp.negated() }
-      }
     }
 
-    "withdraw should" - {
+    "minus (-) should" - {
       "allow same currency operation" in {
-        gbpAccount withdraw gbp shouldBe gbpAccount.copy(balance = gbpAccount.balance minus gbp)
+        gbpAccount - gbp shouldBe gbpAccount.copy(balance = gbpAccount.balance minus gbp)
       }
 
       "forbid different currency operation" in {
-        a[CurrencyMismatchException] shouldBe thrownBy { gbpAccount withdraw usd }
-      }
-
-      "forbid negative amount operation" in {
-        a[IllegalArgumentException] shouldBe thrownBy { gbpAccount withdraw gbp.negated() }
-      }
-
-      "forbid overdraft" in {
-        a[IllegalArgumentException] shouldBe thrownBy { gbpAccount withdraw gbpAccount.balance.multipliedBy(2) }
+        a[CurrencyMismatchException] shouldBe thrownBy { gbpAccount - usd }
       }
 
     }

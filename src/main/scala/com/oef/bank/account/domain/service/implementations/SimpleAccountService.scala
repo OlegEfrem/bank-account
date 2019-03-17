@@ -6,6 +6,7 @@ import com.oef.bank.account.domain.service.provided.DataStore
 import org.joda.money.Money
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Try
 
 class SimpleAccountService(override protected val store: DataStore) extends AccountService {
 
@@ -18,9 +19,10 @@ class SimpleAccountService(override protected val store: DataStore) extends Acco
     * */
   override def deposit(money: Money, to: AccountId): Future[ToAccount] = {
     for {
-      acc <- store.read(to)
-      newAcc = acc.deposit(money)
-      _ <- store.update(newAcc)
+      _      <- requirePositive(money)
+      acc    <- store.read(to)
+      newAcc = acc + money
+      _      <- store.update(newAcc)
     } yield newAcc
   }
 
@@ -31,5 +33,31 @@ class SimpleAccountService(override protected val store: DataStore) extends Acco
     * @return - the new account state;
     *         - error if account not found, money has a negative amount or overdraft attempted.
     * */
-  override def withdraw(money: Money, from: AccountId): Future[ToAccount] = ???
+  override def withdraw(money: Money, from: AccountId): Future[ToAccount] = {
+    for {
+      _      <- requirePositive(money)
+      acc    <- store.read(from)
+      _      <- forbidOverdraft(acc.balance, money)
+      newAcc = acc - money
+      _      <- store.update(newAcc)
+    } yield newAcc
+
+  }
+
+  private def requirePositive(money: Money): Future[Unit] = {
+    Future.fromTry(
+      Try {
+        require(money.isPositive, s"negative amount forbidden: $money")
+      }
+    )
+  }
+
+  private def forbidOverdraft(balance: Money, toSubtract: Money): Future[Unit] = {
+    Future.fromTry(
+      Try {
+        require(balance.minus(toSubtract).isPositiveOrZero, s"insufficient funds: available $balance, required $toSubtract")
+      }
+    )
+  }
+
 }
