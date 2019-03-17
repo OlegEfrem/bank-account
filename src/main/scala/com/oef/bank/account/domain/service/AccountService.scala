@@ -4,6 +4,7 @@ import com.oef.bank.account.domain.model.{Account, AccountId}
 import com.oef.bank.account.domain.service.provided.DataStore
 import org.joda.money.Money
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 trait AccountService {
   protected val store: DataStore
@@ -35,11 +36,9 @@ trait AccountService {
     * */
   def transfer(money: Money, from: AccountId, to: AccountId): Future[(FromAccount, ToAccount)] = {
     for {
-      fromAcc    <- store.read(from)
-      toAcc      <- store.read(to)
-      newFromAcc <- fromAcc.withdraw(money)
-      newToAcc   <- toAcc.deposit(money)
-    } yield (newFromAcc, newToAcc)
+      fromAcc <- store.read(from)
+      toAcc   <- store.read(to)
+    } yield (fromAcc.withdraw(money), toAcc.deposit(money))
   }
 
 }

@@ -8,11 +8,11 @@ class DbStore extends DataStore {
 
   /** Create a new account with zero money.
     *
-    * @param accountId details of the account to be created.
+    * @param accountWith details of the account to be created.
     * @return - the newly created account with zero money;
     *         - error if account exists.
     * */
-  override def create(accountId: AccountId): Future[Account] = ???
+  override def create(accountWith: AccountId): Future[Account] = ???
 
   /** Read account details.
     *
@@ -22,11 +22,19 @@ class DbStore extends DataStore {
     * */
   override def read(accountBy: AccountId): Future[Account] = ???
 
+  /** Update an existing account.
+    *
+    * @param account new account details.
+    * @return - account state before the update;
+    *         - error if account not found.
+    * */
+  override def update(account: Account): Future[AccountBeforeUpdate] = ???
+
   /** Delete an account.
     *
     * @param accountWith details fo the account to be deleted.
-    * @return - success if account exists;
-    *         - error if account doesn't exist.
+    * @return - deleted account if account existed;
+    *         - error if account didn't exist.
     * */
-  override def delete(accountWith: AccountId): Future[Unit] = ???
+  override def delete(accountWith: AccountId): Future[DeletedAccount] = ???
 }
