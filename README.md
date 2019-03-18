@@ -20,11 +20,17 @@ It's behaviour is defined by the API Integration test found [here](/src/test/sca
 ```aidl
 [info] RestApiTest:
 [info] restApi should
-[info] - respond with HTTP-200 OK when submitting valid transfer request
+[info] - create a new account responding with HTTP-201
+[info] - return an existing account
+[info] - delete an existing account
+[info] - deposit money to an existing account
+[info] - withdraw money from an existing account
+[info] - transfer money from an existing account to another existing account
 [info] - respond with HTTP-404 Not Found for a non existing path
 [info] - respond with HTTP-405 Method Not Allowed for a non supported HTTP method
-[info] - respond with HTTP-400 Bad Request in case of an InvalidCurrencyException
-[info] - respond with HTTP-404 Not Found in case of a AccountNotFoundException
+[info] - respond with HTTP-400 Bad Request in case of an  (pending)
+[info] - respond with HTTP-502 Bad Gateway in case of a  (pending)
+[info] - respond with HTTP-404 Not Found in case of a  (pending)
 [info] - respond with HTTP-500 Internal Server Error in case of a generic Exception
 
 ```

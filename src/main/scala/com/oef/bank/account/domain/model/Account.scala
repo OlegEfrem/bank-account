@@ -8,7 +8,6 @@ case class Account(id: AccountId, balance: Money) {
   def +(money: Money): Account = this.copy(balance = balance plus money)
 
   def -(money: Money): Account = this.copy(balance = balance minus money)
-
 }
 
 object Account {

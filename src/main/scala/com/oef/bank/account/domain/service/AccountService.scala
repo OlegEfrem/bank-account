@@ -1,6 +1,7 @@
 package com.oef.bank.account.domain.service
 
 import com.oef.bank.account.domain.model.{Account, AccountId}
+import com.oef.bank.account.domain.service.implementations.SimpleAccountService
 import com.oef.bank.account.domain.service.provided.DataStore
 import org.joda.money.Money
 import scala.concurrent.Future
@@ -41,5 +42,30 @@ trait AccountService {
       newTo   <- deposit(money, to)
     } yield (newFrom, newTo)
   }
+  // functions exposed from the DataStore:
+  /** Create a new account with zero money.
+    * @param accountWith details of the account to be created.
+    * @return - the newly created account with zero money;
+    *         - error if account exists.
+    * */
+  def create(accountWith: AccountId): Future[Account] = store.create(accountWith)
 
+  /** Read account details.
+    * @param accountBy account sort code and number to read details for.
+    * @return - the read account if found;
+    *         - error if account not found.
+    * */
+  def read(accountBy: AccountId): Future[Account] = store.read(accountBy)
+
+  /** Delete an account.
+    * @param accountWith details fo the account to be deleted.
+    * @return - deleted account if account existed;
+    *         - error if account didn't exist.
+    * */
+  def delete(accountWith: AccountId): Future[Account] = store.delete(accountWith)
+
+}
+
+object AccountService {
+  def apply(dataStore: DataStore): AccountService = new SimpleAccountService(dataStore)
 }
