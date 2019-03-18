@@ -21,7 +21,7 @@ scalacOptions ++=
   )
 
 libraryDependencies ++= {
-  val scalaTestVersion = "3.0.6"
+  val scalaTestVersion = "3.0.7"
   val scalaMockVersion = "3.6.0"
   val jacksonVersion = "2.9.8"
   val akkaHttpVersion = "10.1.7"
@@ -65,7 +65,7 @@ coverageEnabled := true
 
 coverageHighlighting := true
 
-coverageMinimum := 75
+coverageMinimum := 60
 
 coverageFailOnMinimum := true
 
