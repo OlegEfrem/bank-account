@@ -14,6 +14,26 @@ plugins [here](/project/plugins.sbt);
 * Plugins configured for the project are: [s-coverage](https://github.com/scoverage/sbt-scoverage) for code test coverage, [scala-style](http://www.scalastyle.org/) for code style checking,
 [scalafmt](https://scalameta.org/scalafmt/) for code formatting and [sbt-updates](https://github.com/rtimush/sbt-updates) for keeping up the dependencies up to date 
 
+# Available endpoints
+- PUT to http://0.0.0.0:9000/v1/account/sort-code/1/acc-no/2/ to create account with sort-code: 1 and account number: 2;
+- GET to http://0.0.0.0:9000/v1/account/sort-code/1/acc-no/2/ to get the account with sort-code: 1 and account number: 2;
+- DELETE to http://0.0.0.0:9000/v1/account/sort-code/1/acc-no/2/ to delete the account with sort-code: 1 and account number: 2;
+- POST to http://0.0.0.0:9000/v1/account/sort-code/1/acc-no/2/deposit with json body:
+    ```json
+    {"currency":"GBP","amount":20}
+    ```
+    to deposit money to the account with sort-code: 1 and account number: 2;
+- POST to http://0.0.0.0:9000/v1/account/sort-code/1/acc-no/2/withdraw with json body:
+    ```json
+    {"currency":"GBP","amount":20}
+    ```
+    to withdraw money from the account with sort-code: 1 and account number: 2;
+- POST to http://0.0.0.0:9000/v1/account/sort-code/1/acc-no/2/transfer with json body:
+    ```json
+    {"to":{"sortCode":-1,"accNumber":-22},"money":{"currency":"GBP","amount":20}}
+    ```
+    to transfer money from the account with sort-code: 1 and account number: 2 to the account -1/-22;
+
 # API Behaviour
 It's behaviour is defined by the API Integration test found [here](/src/test/scala/com/oef/bank/account/infrastructure/inbound/http/RestApiTest.scala).
 ## The test output is: 

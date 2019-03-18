@@ -114,7 +114,11 @@ class RestApiTest extends ApiSpec with OneInstancePerTest {
 
   }
 
-  def requestEntity(obj: AnyRef) = HttpEntity(MediaTypes.`application/json`, jsonConverter.toJson(obj))
+  def requestEntity(obj: AnyRef): HttpEntity.Strict = {
+    val json = jsonConverter.toJson(obj)
+    println(json)
+    HttpEntity(MediaTypes.`application/json`, json)
+  }
 
   def generalUrl(id: AccountId): String = {
     import id._
