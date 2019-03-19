@@ -66,8 +66,7 @@ It's behaviour is defined by the API Integration test found [here](/src/test/sca
 [info] - respond with HTTP-400 Bad Request in case of an  (pending)
 [info] - respond with HTTP-502 Bad Gateway in case of a  (pending)
 [info] - respond with HTTP-404 Not Found in case of a  (pending)
-[info] - respond with HTTP-500 Internal Server Error in case of a generic Exception
-
+[info] - respond with HTTP-500 Internal Server Error in case of a generic Exception (pending)
 ```
 ## Run application
 To run application, call:

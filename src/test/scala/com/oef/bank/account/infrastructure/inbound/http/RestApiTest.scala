@@ -43,7 +43,6 @@ class RestApiTest extends ApiSpec with OneInstancePerTest {
 
     "deposit money to an existing account" in {
       store.create(account.id)
-      val money = ApiMoney("GBP", 20)
       Post("/v1/account/deposit", requestEntity(deposit)) ~> restApi.routes ~> check {
         status shouldBe OK
         responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2},"balance":{"currency":"GBP","amount":20.00}}"""
@@ -53,7 +52,6 @@ class RestApiTest extends ApiSpec with OneInstancePerTest {
     "withdraw money from an existing account" in {
       store.create(account.id)
       store.update(Account(account.id, amount = 50))
-      val money = ApiMoney("GBP", 20)
       Post("/v1/account/withdrawal", requestEntity(withdraw)) ~> restApi.routes ~> check {
         status shouldBe OK
         responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2},"balance":{"currency":"GBP","amount":30.00}}"""
@@ -102,12 +100,7 @@ class RestApiTest extends ApiSpec with OneInstancePerTest {
     }
 
     s"respond with HTTP-$InternalServerError in case of a generic ${classOf[Exception].getSimpleName}" in {
-      verifyExceptionMappedToCode(new Exception("some error"), InternalServerError)
-    }
-
-    def verifyExceptionMappedToCode(exception: Exception, code: StatusCode): Unit = {
-      val request = ConversionRequest("Eur", "GBP", 2)
-      val entity  = HttpEntity(MediaTypes.`application/json`, jsonConverter.toJson(request))
+      pending
     }
 
   }
