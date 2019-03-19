@@ -25,7 +25,7 @@
     {"from":{"sortCode":1,"accNumber":2},"money":{"currency":"GBP","amount":20}}
     ```
     to withdraw money from the account with sort-code: 1 and account number: 2;
-- POST to https://bank-account-transfers.herokuapp.com/v1/account/sort-code/1/acc-no/2/transfer with json body:
+- POST to https://bank-account-transfers.herokuapp.com/v1/account/transfer with json body:
     ```json
     {"from":{"sortCode":1,"accNumber":2},"to":{"sortCode":-1,"accNumber":-22},"money":{"currency":"GBP","amount":20}}
     ```
