@@ -4,7 +4,6 @@
 * This is a Bank Account system implementation of the requirements described [here](Assignment.pdf);
 * Live app is deployed on heroku [here](https://bank-account-transfers.herokuapp.com/info);
 * Sample request/response and issue test calls to live app is on apiary [here](https://bankaccount8.docs.apiary.io/#):
-  - please note query parameters do not work on APIARY, but you can try them in browser;
 
 # Available endpoints
 - Create accunt:
@@ -14,6 +13,7 @@
     ```
 - Retrieve account: 
   - GET to https://bank-account-transfers.herokuapp.com/v1/account?sort-code=1&acc-no=2;
+    - this request can be tried in the browser as well;
 - Delete account: 
   - DELETE to https://bank-account-transfers.herokuapp.com/v1/account/ with json body:
     ```json
