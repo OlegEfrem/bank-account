@@ -60,9 +60,6 @@ testScalastyle := scalastyle.in(Test).toTask("").value
 
 (test in Test) := ((test in Test) dependsOn testScalastyle).value
 
-// code coverage configuration
-coverageEnabled := true
-
 coverageHighlighting := true
 
 coverageMinimum := 60
