@@ -2,7 +2,8 @@
 
 # About
 * This is a Bank Account system implementation of the requirements described [here](Assignment.pdf);
-* Live app is deployed on heroku [here](https://bank-account-transfers.herokuapp.com/info)
+* Live app is deployed on heroku [here](https://bank-account-transfers.herokuapp.com/info);
+* Sample request/response and issue test calls to live app is on apiary [here](https://bankaccount8.docs.apiary.io/#);
 
 # Available endpoints
 - PUT to https://bank-account-transfers.herokuapp.com/v1/account/sort-code/1/acc-no/2/ to create account with sort-code: 1 and account number: 2;
