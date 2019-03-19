@@ -3,7 +3,8 @@
 # About
 * This is a Bank Account system implementation of the requirements described [here](Assignment.pdf);
 * Live app is deployed on heroku [here](https://bank-account-transfers.herokuapp.com/info);
-* Sample request/response and issue test calls to live app is on apiary [here](https://bankaccount8.docs.apiary.io/#);
+* Sample request/response and issue test calls to live app is on apiary [here](https://bankaccount8.docs.apiary.io/#):
+  - please note query parameters do not work on APIARY, but you can try them in browser;
 
 # Available endpoints
 - PUT to https://bank-account-transfers.herokuapp.com/v1/account/ with json body:
@@ -27,9 +28,9 @@
     to withdraw money from the account with sort-code: 1 and account number: 2;
 - POST to https://bank-account-transfers.herokuapp.com/v1/account/transfer with json body:
     ```json
-    {"from":{"sortCode":1,"accNumber":2},"to":{"sortCode":-1,"accNumber":-22},"money":{"currency":"GBP","amount":20}}
+    {"from":{"sortCode":1,"accNumber":2},"to":{"sortCode":2,"accNumber":-3},"money":{"currency":"GBP","amount":20}}
     ```
-    to transfer money from the account with sort-code: 1 and account number: 2 to the account -1/-22;
+    to transfer money from the account with sort-code: 1 and account number: 2 to the account 2/3;
 
 # Highlights
 ## Libraries, Frameworks & Plugins
