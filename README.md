@@ -7,26 +7,32 @@
   - please note query parameters do not work on APIARY, but you can try them in browser;
 
 # Available endpoints
-- PUT to https://bank-account-transfers.herokuapp.com/v1/account/ with json body:
+- Create accunt:
+  - PUT to https://bank-account-transfers.herokuapp.com/v1/account/ with json body:
     ```json
     {"sortCode":1,"accNumber":2}
     ```
-- GET to https://bank-account-transfers.herokuapp.com/v1/account?sort-code=1&acc-no=2;
-- DELETE to https://bank-account-transfers.herokuapp.com/v1/account/ with json body:
+- Retrieve account: 
+  - GET to https://bank-account-transfers.herokuapp.com/v1/account?sort-code=1&acc-no=2;
+- Delete account: 
+  - DELETE to https://bank-account-transfers.herokuapp.com/v1/account/ with json body:
     ```json
     {"sortCode":1,"accNumber":2}
     ```
-- POST to https://bank-account-transfers.herokuapp.com/v1/account/deposit with json body:
+- Deposit money: 
+  - POST to https://bank-account-transfers.herokuapp.com/v1/account/deposit with json body:
     ```json
     {"to":{"sortCode":1,"accNumber":2},"money":{"currency":"GBP","amount":20}}
     ```
     to deposit money to the account with sort-code: 1 and account number: 2;
-- POST to https://bank-account-transfers.herokuapp.com/v1/account/withdrawal with json body:
+- Withdraw money:
+  - POST to https://bank-account-transfers.herokuapp.com/v1/account/withdrawal with json body:
     ```json
     {"from":{"sortCode":1,"accNumber":2},"money":{"currency":"GBP","amount":20}}
     ```
     to withdraw money from the account with sort-code: 1 and account number: 2;
-- POST to https://bank-account-transfers.herokuapp.com/v1/account/transfer with json body:
+- Transfer money: 
+  - POST to https://bank-account-transfers.herokuapp.com/v1/account/transfer with json body:
     ```json
     {"from":{"sortCode":1,"accNumber":2},"to":{"sortCode":2,"accNumber":-3},"money":{"currency":"GBP","amount":20}}
     ```
