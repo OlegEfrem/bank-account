@@ -2,6 +2,27 @@
 
 # About
 * This is a Bank Account system implementation of the requirements described [here](Assignment.pdf);
+* Live app is deployed on heroku [here](https://bank-account-transfers.herokuapp.com/info)
+
+# Available endpoints
+- PUT to https://bank-account-transfers.herokuapp.com/v1/account/sort-code/1/acc-no/2/ to create account with sort-code: 1 and account number: 2;
+- GET to https://bank-account-transfers.herokuapp.com/v1/account/sort-code/1/acc-no/2/ to get the account with sort-code: 1 and account number: 2;
+- DELETE to https://bank-account-transfers.herokuapp.com/v1/account/sort-code/1/acc-no/2/ to delete the account with sort-code: 1 and account number: 2;
+- POST to https://bank-account-transfers.herokuapp.com/v1/account/sort-code/1/acc-no/2/deposit with json body:
+    ```json
+    {"currency":"GBP","amount":20}
+    ```
+    to deposit money to the account with sort-code: 1 and account number: 2;
+- POST to https://bank-account-transfers.herokuapp.com/v1/account/sort-code/1/acc-no/2/withdraw with json body:
+    ```json
+    {"currency":"GBP","amount":20}
+    ```
+    to withdraw money from the account with sort-code: 1 and account number: 2;
+- POST to https://bank-account-transfers.herokuapp.com/v1/account/sort-code/1/acc-no/2/transfer with json body:
+    ```json
+    {"to":{"sortCode":-1,"accNumber":-22},"money":{"currency":"GBP","amount":20}}
+    ```
+    to transfer money from the account with sort-code: 1 and account number: 2 to the account -1/-22;
 
 # Highlights
 ## Libraries, Frameworks & Plugins
@@ -12,27 +33,7 @@ plugins [here](/project/plugins.sbt);
 * Testing layer uses: [scala test](http://www.scalatest.org/) for defining test cases, [scala mock](http://scalamock.org/) for mocking dependencies in unit tests and 
 [akka-http-test-kit](https://doc.akka.io/docs/akka-http/10.1.7/routing-dsl/testkit.html?language=scala) for api tests;
 * Plugins configured for the project are: [s-coverage](https://github.com/scoverage/sbt-scoverage) for code test coverage, [scala-style](http://www.scalastyle.org/) for code style checking,
-[scalafmt](https://scalameta.org/scalafmt/) for code formatting and [sbt-updates](https://github.com/rtimush/sbt-updates) for keeping up the dependencies up to date 
-
-# Available endpoints
-- PUT to http://0.0.0.0:9000/v1/account/sort-code/1/acc-no/2/ to create account with sort-code: 1 and account number: 2;
-- GET to http://0.0.0.0:9000/v1/account/sort-code/1/acc-no/2/ to get the account with sort-code: 1 and account number: 2;
-- DELETE to http://0.0.0.0:9000/v1/account/sort-code/1/acc-no/2/ to delete the account with sort-code: 1 and account number: 2;
-- POST to http://0.0.0.0:9000/v1/account/sort-code/1/acc-no/2/deposit with json body:
-    ```json
-    {"currency":"GBP","amount":20}
-    ```
-    to deposit money to the account with sort-code: 1 and account number: 2;
-- POST to http://0.0.0.0:9000/v1/account/sort-code/1/acc-no/2/withdraw with json body:
-    ```json
-    {"currency":"GBP","amount":20}
-    ```
-    to withdraw money from the account with sort-code: 1 and account number: 2;
-- POST to http://0.0.0.0:9000/v1/account/sort-code/1/acc-no/2/transfer with json body:
-    ```json
-    {"to":{"sortCode":-1,"accNumber":-22},"money":{"currency":"GBP","amount":20}}
-    ```
-    to transfer money from the account with sort-code: 1 and account number: 2 to the account -1/-22;
+[scalafmt](https://scalameta.org/scalafmt/) for code formatting and [sbt-updates](https://github.com/rtimush/sbt-updates) for keeping up the dependencies up to date;
 
 # API Behaviour
 It's behaviour is defined by the API Integration test found [here](/src/test/scala/com/oef/bank/account/infrastructure/inbound/http/RestApiTest.scala).
