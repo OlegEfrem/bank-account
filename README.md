@@ -6,22 +6,28 @@
 * Sample request/response and issue test calls to live app is on apiary [here](https://bankaccount8.docs.apiary.io/#);
 
 # Available endpoints
-- PUT to https://bank-account-transfers.herokuapp.com/v1/account/sort-code/1/acc-no/2/ to create account with sort-code: 1 and account number: 2;
-- GET to https://bank-account-transfers.herokuapp.com/v1/account/sort-code/1/acc-no/2/ to get the account with sort-code: 1 and account number: 2;
-- DELETE to https://bank-account-transfers.herokuapp.com/v1/account/sort-code/1/acc-no/2/ to delete the account with sort-code: 1 and account number: 2;
-- POST to https://bank-account-transfers.herokuapp.com/v1/account/sort-code/1/acc-no/2/deposit with json body:
+- PUT to https://bank-account-transfers.herokuapp.com/v1/account/ with json body:
     ```json
-    {"currency":"GBP","amount":20}
+    {"sortCode":1,"accNumber":2}
+    ```
+- GET to https://bank-account-transfers.herokuapp.com/v1/account?sort-code=1&acc-no=2;
+- DELETE to https://bank-account-transfers.herokuapp.com/v1/account/ with json body:
+    ```json
+    {"sortCode":1,"accNumber":2}
+    ```
+- POST to https://bank-account-transfers.herokuapp.com/v1/account/deposit with json body:
+    ```json
+    {"to":{"sortCode":1,"accNumber":2},"money":{"currency":"GBP","amount":20}}
     ```
     to deposit money to the account with sort-code: 1 and account number: 2;
-- POST to https://bank-account-transfers.herokuapp.com/v1/account/sort-code/1/acc-no/2/withdraw with json body:
+- POST to https://bank-account-transfers.herokuapp.com/v1/account/withdrawal with json body:
     ```json
-    {"currency":"GBP","amount":20}
+    {"from":{"sortCode":1,"accNumber":2},"money":{"currency":"GBP","amount":20}}
     ```
     to withdraw money from the account with sort-code: 1 and account number: 2;
 - POST to https://bank-account-transfers.herokuapp.com/v1/account/sort-code/1/acc-no/2/transfer with json body:
     ```json
-    {"to":{"sortCode":-1,"accNumber":-22},"money":{"currency":"GBP","amount":20}}
+    {"from":{"sortCode":1,"accNumber":2},"to":{"sortCode":-1,"accNumber":-22},"money":{"currency":"GBP","amount":20}}
     ```
     to transfer money from the account with sort-code: 1 and account number: 2 to the account -1/-22;
 

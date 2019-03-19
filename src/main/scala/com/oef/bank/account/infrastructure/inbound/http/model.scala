@@ -14,4 +14,8 @@ object ApiAccount {
   def apply(account: Account): ApiAccount = ApiAccount(account.id, ApiMoney(account.balance.getCurrencyUnit.getCode, account.balance.getAmount))
 }
 
-case class Transfer(to: AccountId, money: ApiMoney)
+case class ApiDeposit(to: AccountId, money: ApiMoney)
+
+case class ApiWithdraw(from: AccountId, money: ApiMoney)
+
+case class ApiTransfer(from: AccountId, to: AccountId, money: ApiMoney)

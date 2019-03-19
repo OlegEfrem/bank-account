@@ -13,68 +13,71 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class AccountRoutes(service: AccountService, jsonConverter: JsonConverter) {
 
-  val endpoints: Route = pathPrefix("account" / "sort-code" / Segment / "acc-no" / Segment) { (sortCode, accNo) =>
-    Try {
-      AccountId(sortCode.toInt, accNo.toLong)
-    } match {
-      case Success(x)   => managementRoutes(x) ~ transferRoutes(x)
-      case Failure(err) => complete(BadRequest, s"invalid sort code: $sortCode or account number: $accNo, error: ${err.getMessage}")
-    }
+  val endpoints: Route = pathPrefix("account") {
+    managementRoutes() ~ transferRoutes()
   }
 
-  private def managementRoutes(id: AccountId): Route = {
+  private def managementRoutes(): Route = {
     pathEndOrSingleSlash {
-      get {
-        retrieveAccount(id)
-      } ~ put {
-        createAccount(id)
-      } ~ delete {
-        deleteAccount(id)
-      }
+      parameters("sort-code", "acc-no") { (sortCode, accNo) =>
+        get {
+          retrieveAccount(sortCode, accNo)
+        }
+      } ~
+        put {
+          entity(as[String]) { accId =>
+            createAccount(jsonConverter.fromJson[AccountId](accId))
+          }
+        } ~
+        delete {
+          entity(as[String]) { accId =>
+            deleteAccount(jsonConverter.fromJson[AccountId](accId))
+          }
+        }
     }
   }
 
-  private def transferRoutes(id: AccountId): Route = {
+  private def transferRoutes(): Route = {
     concat(
       path("deposit") {
         post {
-          entity(as[String]) { money =>
-            deposit(money, id)
+          entity(as[String]) { details =>
+            deposit(details)
           }
         }
       },
-      path("withdraw") {
+      path("withdrawal") {
         post {
-          entity(as[String]) { money =>
-            withdraw(money, id)
+          entity(as[String]) { details =>
+            withdraw(details)
           }
         }
       },
       path("transfer") {
         post {
           entity(as[String]) { details =>
-            transfer(details, id)
+            transfer(details)
           }
         }
       }
     )
   }
 
-  private def deposit(moneyJson: String, id: AccountId): Route = {
-    val apiMoney = jsonConverter.fromJson[ApiMoney](moneyJson)
-    val result   = service.deposit(apiMoney.toDomain, id)
+  private def deposit(details: String): Route = {
+    val depositDetails = jsonConverter.fromJson[ApiDeposit](details)
+    val result         = service.deposit(depositDetails.money.toDomain, depositDetails.to)
     createResponse(result)
   }
 
-  private def withdraw(moneyJson: String, id: AccountId): Route = {
-    val apiMoney = jsonConverter.fromJson[ApiMoney](moneyJson)
-    val result   = service.withdraw(apiMoney.toDomain, id)
+  private def withdraw(details: String): Route = {
+    val withdrawDetails = jsonConverter.fromJson[ApiWithdraw](details)
+    val result          = service.withdraw(withdrawDetails.money.toDomain, withdrawDetails.from)
     createResponse(result)
   }
 
-  private def transfer(details: String, id: AccountId): Route = {
-    val transfer = jsonConverter.fromJson[Transfer](details)
-    val result   = service.transfer(transfer.money.toDomain, id, transfer.to)
+  private def transfer(details: String): Route = {
+    val transferDetails = jsonConverter.fromJson[ApiTransfer](details)
+    val result          = service.transfer(transferDetails.money.toDomain, transferDetails.from, transferDetails.to)
     onComplete(result) {
       case Success(accounts) => complete(jsonConverter.toJson(Map("fromAccount" -> ApiAccount(accounts._1), "toAccount" -> ApiAccount(accounts._2))))
       case Failure(err)      => completeWithError(err)
@@ -86,9 +89,16 @@ class AccountRoutes(service: AccountService, jsonConverter: JsonConverter) {
     createResponse(result, Created)
   }
 
-  def retrieveAccount(id: AccountId): Route = {
-    val result = service.read(id)
-    createResponse(result)
+  def retrieveAccount(sortCode: String, accNo: String): Route = {
+    Try {
+      AccountId(sortCode.toInt, accNo.toLong)
+    } match {
+      case Success(accId) =>
+        val result = service.read(accId)
+        createResponse(result)
+      case Failure(err) => complete(BadRequest, s"invalid sort code: $sortCode or account number: $accNo, error: ${err.getMessage}")
+    }
+
   }
 
   def deleteAccount(id: AccountId): Route = {

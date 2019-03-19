@@ -17,10 +17,9 @@ class RestApiTest extends ApiSpec with OneInstancePerTest {
   val restApi                 = new RestApi(new AccountRoutes(service, JsonConverter()))
 
   "restApi should" - {
-    val account = Account(AccountId(1, 2))
 
     "create a new account responding with HTTP-201" in {
-      Put(generalUrl(account.id)) ~> restApi.routes ~> check {
+      Put("/v1/account", requestEntity(account.id)) ~> restApi.routes ~> check {
         status shouldBe Created
         responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2},"balance":{"currency":"GBP","amount":0.00}}"""
       }
@@ -28,7 +27,7 @@ class RestApiTest extends ApiSpec with OneInstancePerTest {
 
     "return an existing account" in {
       store.create(account.id)
-      Get(generalUrl(account.id)) ~> restApi.routes ~> check {
+      Get("/v1/account?sort-code=1&acc-no=2") ~> restApi.routes ~> check {
         status shouldBe OK
         responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2},"balance":{"currency":"GBP","amount":0.00}}"""
       }
@@ -36,7 +35,7 @@ class RestApiTest extends ApiSpec with OneInstancePerTest {
 
     "delete an existing account" in {
       store.create(account.id)
-      Delete(generalUrl(account.id)) ~> restApi.routes ~> check {
+      Delete("/v1/account", requestEntity(account.id)) ~> restApi.routes ~> check {
         status shouldBe OK
         responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2},"balance":{"currency":"GBP","amount":0.00}}"""
       }
@@ -45,7 +44,7 @@ class RestApiTest extends ApiSpec with OneInstancePerTest {
     "deposit money to an existing account" in {
       store.create(account.id)
       val money = ApiMoney("GBP", 20)
-      Post(generalUrl(account.id) + "deposit", requestEntity(money)) ~> restApi.routes ~> check {
+      Post("/v1/account/deposit", requestEntity(deposit)) ~> restApi.routes ~> check {
         status shouldBe OK
         responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2},"balance":{"currency":"GBP","amount":20.00}}"""
       }
@@ -55,7 +54,7 @@ class RestApiTest extends ApiSpec with OneInstancePerTest {
       store.create(account.id)
       store.update(Account(account.id, amount = 50))
       val money = ApiMoney("GBP", 20)
-      Post(generalUrl(account.id) + "withdraw", requestEntity(money)) ~> restApi.routes ~> check {
+      Post("/v1/account/withdrawal", requestEntity(withdraw)) ~> restApi.routes ~> check {
         status shouldBe OK
         responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2},"balance":{"currency":"GBP","amount":30.00}}"""
       }
@@ -65,10 +64,9 @@ class RestApiTest extends ApiSpec with OneInstancePerTest {
       store.create(account.id)
       store.update(Account(account.id, amount = 50))
       val anotherAccountId = AccountId(-1, -22)
-      val money            = ApiMoney("GBP", 20)
-      val transfer         = Transfer(anotherAccountId, money)
+      val transfer         = ApiTransfer(account.id, anotherAccountId, money)
       store.create(anotherAccountId)
-      Post(generalUrl(account.id) + "transfer", requestEntity(transfer)) ~> restApi.routes ~> check {
+      Post("/v1/account/transfer", requestEntity(transfer)) ~> restApi.routes ~> check {
         status shouldBe OK
         //scalastyle:off
         responseAs[String] shouldBe
@@ -85,9 +83,9 @@ class RestApiTest extends ApiSpec with OneInstancePerTest {
     }
 
     s"respond with HTTP-$MethodNotAllowed for a non supported HTTP method" in {
-      Patch(generalUrl(account.id)) ~> restApi.routes ~> check {
+      Patch("/v1/account/") ~> restApi.routes ~> check {
         status shouldBe MethodNotAllowed
-        responseAs[String] shouldBe "Not supported method! Supported methods are: GET, PUT, DELETE!"
+        responseAs[String] shouldBe "Not supported method! Supported methods are: PUT, DELETE!"
       }
     }
 
@@ -114,15 +112,14 @@ class RestApiTest extends ApiSpec with OneInstancePerTest {
 
   }
 
+  val money    = ApiMoney("GBP", 20)
+  val account  = Account(AccountId(1, 2))
+  val deposit  = ApiDeposit(account.id, money)
+  val withdraw = ApiWithdraw(account.id, money)
+
   def requestEntity(obj: AnyRef): HttpEntity.Strict = {
     val json = jsonConverter.toJson(obj)
-    println(json)
     HttpEntity(MediaTypes.`application/json`, json)
-  }
-
-  def generalUrl(id: AccountId): String = {
-    import id._
-    s"/v1/account/sort-code/$sortCode/acc-no/$accNumber/"
   }
 
 }
