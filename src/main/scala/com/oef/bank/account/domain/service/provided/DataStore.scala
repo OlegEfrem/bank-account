@@ -3,7 +3,6 @@ package com.oef.bank.account.domain.service.provided
 import com.oef.bank.account.domain.model._
 import org.joda.money.Money
 import scala.concurrent.Future
-import com.oef.bank.account.domain.model.AccountNotFoundException
 
 /** Trait for data store implementations to be provided by the infrastructure layer.
   * */
