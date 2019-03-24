@@ -1,74 +1,74 @@
 package com.oef.bank.account.infrastructure.outbound.store.memory
 
 import java.util.concurrent.ConcurrentHashMap
-
-import com.oef.bank.account.domain.model.{Account, AccountId}
+import com.oef.bank.account.domain.model._
 import com.oef.bank.account.domain.service.provided.DataStore
-
+import org.joda.money.Money
 import scala.concurrent.Future
 import scala.collection._
 import JavaConverters._
+import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 class InMemoryStore extends DataStore {
-  private val accounts: concurrent.Map[AccountId, Account] = new ConcurrentHashMap[AccountId, Account]().asScala
+  private val transactions: concurrent.Map[AccountId, ListBuffer[Transaction]] = new ConcurrentHashMap[AccountId, ListBuffer[Transaction]]().asScala
 
-  /** Create a new account with zero money.
-    *
-    * @param accountWith details of the account to be created.
-    * @return - the newly created account with zero money;
-    *         - error if account exists.
-    * */
   override def create(accountWith: AccountId): Future[Account] = {
-    val account = Account(accountWith)
     Future.fromTry(
-      accounts.putIfAbsent(accountWith, account) match {
-        case None    => Success(account)
-        case Some(x) => Failure(new IllegalArgumentException(s"account exists already: $accountWith"))
+      transactions.putIfAbsent(accountWith, ListBuffer()) match {
+        case None    => Success(assembleAccount(accountWith, List()))
+        case Some(x) => Failure(AccountAlreadyExistsException(s"account exists already: $accountWith"))
       }
     )
   }
 
-  /** Read account details.
-    *
-    * @param accountBy account sort code and number to read details for.
-    * @return - the account if found;
-    *         - error if account not found.
-    * */
   override def read(accountBy: AccountId): Future[Account] = {
-    Future {
-      accounts.getOrElse(accountBy, throw new IllegalArgumentException(s"account doesn't exist: $accountBy"))
-    }
+    balanceFor(accountBy).map(Account(accountBy, _))
   }
 
-  /** Update an existing account.
-    *
-    * @param account new account details.
-    * @return - account state before the update;
-    *         - error if account not found.
-    * */
-  override def update(account: Account): Future[AccountBeforeUpdate] = {
-    Future.fromTry(
-      accounts.replace(account.id, account) match {
-        case Some(x) => Success(x)
-        case None    => Failure(new IllegalArgumentException(s"account doesn't exist: ${account.id}"))
-      }
-    )
-  }
-
-  /** Delete an account.
-    * @param accountWith details fo the account to be deleted.
-    * @return - deleted account if account existed;
-    *         - error if account didn't exist.
-    * */
   override def delete(accountWith: AccountId): Future[DeletedAccount] = {
     Future.fromTry(
-      accounts.remove(accountWith) match {
-        case None    => Failure(new IllegalArgumentException(s"account doesn't exist: $accountWith"))
-        case Some(x) => Success(x)
+      transactions.remove(accountWith) match {
+        case None      => notFound(accountWith)
+        case Some(txs) => Success(assembleAccount(accountWith, txs.toList))
       }
     )
+  }
+
+  override def add(transaction: Transaction, to: AccountId): Future[NewBalance] = {
+    Future.fromTry(
+      transactions.get(to) match {
+        case Some(txs) =>
+          val newTxs = txs += transaction
+          Success(Money.of(to.currencyUnit, sum(newTxs.toList)))
+        case None => notFound(to)
+      }
+    )
+  }
+
+  def balanceFor(id: AccountId): Future[Money] = {
+    readTransactions(id).map(txs => Money.of(id.currencyUnit, sum(txs)))
+  }
+
+  override def readTransactions(by: AccountId): Future[List[Transaction]] = {
+    Future.fromTry(
+      transactions.get(by) match {
+        case Some(txs) => Success(txs.toList)
+        case None      => notFound(by)
+      }
+    )
+  }
+
+  private def assembleAccount(id: AccountId, transactions: List[Transaction]): Account = {
+    Account(id, Money.of(id.currencyUnit, sum(transactions)))
+  }
+
+  private def sum(transactions: List[Transaction]): java.math.BigDecimal = {
+    transactions.view.map(_.value).sum.underlying()
+  }
+  private def notFound(accountId: AccountId): Try[Nothing] = {
+    Failure(AccountNotFoundException(s"account doesn't exist: $accountId"))
   }
 
 }

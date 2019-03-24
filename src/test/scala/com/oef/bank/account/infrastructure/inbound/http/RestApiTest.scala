@@ -1,9 +1,9 @@
 package com.oef.bank.account.infrastructure.inbound.http
 
 import akka.http.scaladsl.model.StatusCodes._
-import akka.http.scaladsl.model.{HttpEntity, MediaTypes, StatusCode}
+import akka.http.scaladsl.model.{HttpEntity, MediaTypes}
 import com.oef.bank.ApiSpec
-import com.oef.bank.account.domain.model.{Account, AccountId}
+import com.oef.bank.account.domain.model.Transaction
 import com.oef.bank.account.domain.service.AccountService
 import com.oef.bank.account.domain.service.provided.DataStore
 import com.oef.bank.account.infrastructure.json.JsonConverter
@@ -19,56 +19,56 @@ class RestApiTest extends ApiSpec with OneInstancePerTest {
   "restApi should" - {
 
     "create a new account responding with HTTP-201" in {
-      Put("/v1/account", requestEntity(account.id)) ~> restApi.routes ~> check {
+      Put("/v1/account", requestEntity(apiAccount.id)) ~> restApi.routes ~> check {
         status shouldBe Created
-        responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2},"balance":{"currency":"GBP","amount":0.00}}"""
+        responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2,"currencyUnit":"GBP"},"balance":{"currency":"GBP","amount":0.00}}"""
       }
     }
 
     "return an existing account" in {
-      store.create(account.id)
-      Get("/v1/account?sort-code=1&acc-no=2") ~> restApi.routes ~> check {
+      store.create(apiAccount.id.toDomain)
+      Get("/v1/account?sort-code=1&acc-no=2&currency=GBP") ~> restApi.routes ~> check {
         status shouldBe OK
-        responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2},"balance":{"currency":"GBP","amount":0.00}}"""
+        responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2,"currencyUnit":"GBP"},"balance":{"currency":"GBP","amount":0.00}}"""
       }
     }
 
     "delete an existing account" in {
-      store.create(account.id)
-      Delete("/v1/account", requestEntity(account.id)) ~> restApi.routes ~> check {
+      store.create(apiAccount.id.toDomain)
+      Delete("/v1/account", requestEntity(apiAccount.id)) ~> restApi.routes ~> check {
         status shouldBe OK
-        responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2},"balance":{"currency":"GBP","amount":0.00}}"""
+        responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2,"currencyUnit":"GBP"},"balance":{"currency":"GBP","amount":0.00}}"""
       }
     }
 
     "deposit money to an existing account" in {
-      store.create(account.id)
-      Post("/v1/account/deposit", requestEntity(deposit)) ~> restApi.routes ~> check {
+      store.create(apiAccount.id.toDomain)
+      Post("/v1/account/deposit", requestEntity(apiDeposit)) ~> restApi.routes ~> check {
         status shouldBe OK
-        responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2},"balance":{"currency":"GBP","amount":20.00}}"""
+        responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2,"currencyUnit":"GBP"},"balance":{"currency":"GBP","amount":20.00}}"""
       }
     }
 
     "withdraw money from an existing account" in {
-      store.create(account.id)
-      store.update(Account(account.id, amount = 50))
-      Post("/v1/account/withdrawal", requestEntity(withdraw)) ~> restApi.routes ~> check {
+      store.create(apiAccount.id.toDomain)
+      store.add(Transaction(50), apiAccount.id.toDomain)
+      Post("/v1/account/withdrawal", requestEntity(apiWithdraw)) ~> restApi.routes ~> check {
         status shouldBe OK
-        responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2},"balance":{"currency":"GBP","amount":30.00}}"""
+        responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2,"currencyUnit":"GBP"},"balance":{"currency":"GBP","amount":30.00}}"""
       }
     }
 
     "transfer money from an existing account to another existing account" in {
-      store.create(account.id)
-      store.update(Account(account.id, amount = 50))
-      val anotherAccountId = AccountId(-1, -22)
-      val transfer         = ApiTransfer(account.id, anotherAccountId, money)
-      store.create(anotherAccountId)
+      store.create(apiAccount.id.toDomain)
+      store.add(Transaction(50), apiAccount.id.toDomain)
+      val anotherAccountId = ApiAccountId(-1, -22, "GBP")
+      val transfer         = ApiTransfer(apiAccount.id, anotherAccountId, apiMoney)
+      store.create(anotherAccountId.toDomain)
       Post("/v1/account/transfer", requestEntity(transfer)) ~> restApi.routes ~> check {
         status shouldBe OK
         //scalastyle:off
         responseAs[String] shouldBe
-          """{"fromAccount":{"id":{"sortCode":1,"accNumber":2},"balance":{"currency":"GBP","amount":30.00}},"toAccount":{"id":{"sortCode":-1,"accNumber":-22},"balance":{"currency":"GBP","amount":20.00}}}""".stripMargin
+          """{"fromAccount":{"id":{"sortCode":1,"accNumber":2,"currencyUnit":"GBP"},"balance":{"currency":"GBP","amount":30.00}},"toAccount":{"id":{"sortCode":-1,"accNumber":-22,"currencyUnit":"GBP"},"balance":{"currency":"GBP","amount":20.00}}}""".stripMargin
         //scalastyle:on
       }
     }
@@ -105,10 +105,10 @@ class RestApiTest extends ApiSpec with OneInstancePerTest {
 
   }
 
-  val money    = ApiMoney("GBP", 20)
-  val account  = Account(AccountId(1, 2))
-  val deposit  = ApiDeposit(account.id, money)
-  val withdraw = ApiWithdraw(account.id, money)
+  val apiMoney    = ApiMoney("GBP", 20)
+  val apiAccount  = ApiAccount(ApiAccountId(1, 2, "GBP"), ApiMoney("GBP", 0))
+  val apiDeposit  = ApiDeposit(apiAccount.id, apiMoney)
+  val apiWithdraw = ApiWithdraw(apiAccount.id, apiMoney)
 
   def requestEntity(obj: AnyRef): HttpEntity.Strict = {
     val json = jsonConverter.toJson(obj)

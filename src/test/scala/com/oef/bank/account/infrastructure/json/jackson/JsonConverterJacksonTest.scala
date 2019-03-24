@@ -2,15 +2,17 @@ package com.oef.bank.account.infrastructure.json.jackson
 
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException
 import com.oef.bank.UnitSpec
-import com.oef.bank.account.domain.model.AccountId
-import com.oef.bank.account.infrastructure.inbound.http.{ApiMoney, ApiTransfer}
+import com.oef.bank.account.infrastructure.inbound.http.{ApiAccountId, ApiMoney, ApiTransfer}
 
 class JsonConverterJacksonTest extends UnitSpec {
   val jsonConverter: JsonConverterJackson.type = JsonConverterJackson
 
   "Converter should" - {
-    val transfer = ApiTransfer(AccountId(1, 2), AccountId(2, 3), ApiMoney("GBP", 20))
-    val json     = """{"from":{"sortCode":1,"accNumber":2},"to":{"sortCode":2,"accNumber":3},"money":{"currency":"GBP","amount":20}}"""
+    val transfer = ApiTransfer(ApiAccountId(1, 2, "GBP"), ApiAccountId(2, 3, "GBP"), ApiMoney("GBP", 20))
+    val json     =
+      //scalastyle:off
+      """{"from":{"sortCode":1,"accNumber":2,"currencyUnit":"GBP"},"to":{"sortCode":2,"accNumber":3,"currencyUnit":"GBP"},"money":{"currency":"GBP","amount":20}}"""
+    //scalastyle:on
 
     "convert from json to case class" in {
       jsonConverter.fromJson[ApiTransfer](json) shouldBe transfer

@@ -1,7 +1,8 @@
 package com.oef.bank.account.infrastructure.outbound.store.db
 
-import com.oef.bank.account.domain.model.{Account, AccountId}
+import com.oef.bank.account.domain.model.{Account, AccountId, Transaction}
 import com.oef.bank.account.domain.service.provided.DataStore
+import com.oef.bank.account.domain.model.AccountNotFoundException
 import scala.concurrent.Future
 
 class DbStore extends DataStore {
@@ -22,14 +23,6 @@ class DbStore extends DataStore {
     * */
   override def read(accountBy: AccountId): Future[Account] = ???
 
-  /** Update an existing account.
-    *
-    * @param account new account details.
-    * @return - account state before the update;
-    *         - error if account not found.
-    * */
-  override def update(account: Account): Future[AccountBeforeUpdate] = ???
-
   /** Delete an account.
     *
     * @param accountWith details fo the account to be deleted.
@@ -37,4 +30,30 @@ class DbStore extends DataStore {
     *         - error if account didn't exist.
     * */
   override def delete(accountWith: AccountId): Future[DeletedAccount] = ???
+
+  /** Adds a new transaction to an existing account.
+    *
+    * @param transaction the new transaction to be added.
+    * @param to account to add new transaction to.
+    * @return - new balance after adding the new transaction;
+    *         - [[AccountNotFoundException]] if account not found.
+    * */
+  override def add(transaction: Transaction, to: AccountId): Future[NewBalance] = ???
+
+  /** Adds a new transaction to an existing account.
+    *
+    * @param by account for which to return the transactions.
+    * @return - transactions for the requested account;
+    *         - [[AccountNotFoundException]] if account not found.
+    * */
+  override def readTransactions(by: AccountId): Future[List[Transaction]] = ???
+
+  /** Retrieves balance for given account id.
+    *
+    * @param id account for which to return the balance.
+    * @return Future completed with:
+    *         - balance for requested account;
+    *         - [[AccountNotFoundException]] if account not found.
+    * */
+  override def balanceFor(id: AccountId): Future[NewBalance] = ???
 }

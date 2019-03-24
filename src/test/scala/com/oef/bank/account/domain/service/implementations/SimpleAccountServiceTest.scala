@@ -1,7 +1,7 @@
 package com.oef.bank.account.domain.service.implementations
 
 import com.oef.bank.UnitSpec
-import com.oef.bank.account.domain.model.{Account, AccountId}
+import com.oef.bank.account.domain.model.{Account, AccountId, AccountNotFoundException}
 import com.oef.bank.account.domain.service.provided.DataStore
 import com.oef.bank.account.infrastructure.outbound.store.memory.InMemoryStore
 import org.joda.money.{CurrencyUnit, Money}
@@ -10,7 +10,7 @@ import org.scalatest.OneInstancePerTest
 class SimpleAccountServiceTest extends UnitSpec with OneInstancePerTest {
 
   "SimpleAccountService" - {
-    val accountId                 = AccountId(123, 123456)
+    val accountId                 = AccountId(123, 123456, CurrencyUnit.GBP)
     def money(amount: BigDecimal) = Money.of(CurrencyUnit.GBP, amount.underlying())
     val money_22                  = money(22.35)
     val account_0                 = Account(accountId)
@@ -27,8 +27,8 @@ class SimpleAccountServiceTest extends UnitSpec with OneInstancePerTest {
       }
 
       "return error for non existing account" in {
-        whenReady(service.deposit(money_22, accountId.copy(sortCode = -1)).failed) { e =>
-          e shouldBe an[IllegalArgumentException]
+        whenReady(service.deposit(money_22, accountId.copy(sortCode = -1, currencyUnit = CurrencyUnit.GBP)).failed) { e =>
+          e shouldBe an[AccountNotFoundException]
         }
       }
 
@@ -45,7 +45,7 @@ class SimpleAccountServiceTest extends UnitSpec with OneInstancePerTest {
 
       "withdraw money from an existing account" in {
         val account_44 = account_22 + money_22
-        store.update(account_44)
+        store.add(account_44.balance.toTransaction, account_44.id)
         store.read(accountId).futureValue shouldBe account_44
         service.withdraw(money_22, accountId).futureValue shouldBe account_22
         store.read(accountId).futureValue shouldBe account_22
@@ -72,9 +72,9 @@ class SimpleAccountServiceTest extends UnitSpec with OneInstancePerTest {
 
     "transfer should" - {
       "withdraw from source account and deposit to destination account" in {
-        val sourceAccount = Account(AccountId(1, 12), money(100))
+        val sourceAccount = Account(AccountId(1, 12, CurrencyUnit.GBP), money(100))
         store.create(sourceAccount.id)
-        store.update(sourceAccount)
+        store.add(sourceAccount.balance.toTransaction, sourceAccount.id)
         val destinationAccount = account_0
         store.create(destinationAccount.id)
         val transferAmount           = money(50)

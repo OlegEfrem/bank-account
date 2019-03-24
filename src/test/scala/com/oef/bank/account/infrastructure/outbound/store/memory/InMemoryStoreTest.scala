@@ -1,14 +1,14 @@
 package com.oef.bank.account.infrastructure.outbound.store.memory
 
 import com.oef.bank.UnitSpec
-import com.oef.bank.account.domain.model.{Account, AccountId}
+import com.oef.bank.account.domain.model._
 import org.joda.money.{CurrencyUnit, Money}
 
 class InMemoryStoreTest extends UnitSpec {
 
   "InMemoryStore" - {
     def store     = new InMemoryStore
-    val accountId = AccountId(1234, 123456)
+    val accountId = AccountId(1234, 123456, CurrencyUnit.GBP)
     val gbp_0     = Money.of(CurrencyUnit.GBP, 0)
     val account   = Account(accountId, gbp_0)
 
@@ -21,7 +21,7 @@ class InMemoryStoreTest extends UnitSpec {
         val store = new InMemoryStore
         store.create(accountId).futureValue shouldBe account
         whenReady(store.create(accountId).failed) { e =>
-          e shouldBe an[IllegalArgumentException]
+          e shouldBe an[AccountAlreadyExistsException]
 
         }
       }
@@ -36,24 +36,29 @@ class InMemoryStoreTest extends UnitSpec {
 
       "return error on non existing account" in {
         whenReady(store.read(accountId).failed) { e =>
-          e shouldBe an[IllegalArgumentException]
+          e shouldBe an[AccountNotFoundException]
         }
       }
     }
 
-    "update should" - {
-      "update an existing account returning the account state before the update" in {
+    "add should" - {
+      def verifyAdd(amount: Int) = {
         val store = new InMemoryStore
-        store.create(accountId).futureValue.balance shouldBe gbp_0
-        val gbp_20 = Money.of(CurrencyUnit.GBP, 20)
-        store.update(account.copy(balance = gbp_20)).futureValue.balance shouldBe gbp_0
-        store.read(accountId).futureValue.balance shouldBe gbp_20
-
+        store.create(accountId).futureValue shouldBe Account(accountId)
+        store.add(Transaction(amount), accountId).futureValue shouldBe Money.of(accountId.currencyUnit, amount)
+        store.read(accountId).futureValue shouldBe Account(accountId, accountId.currencyUnit.getCode, amount)
+      }
+      "add a positive amount to transactions" in {
+        verifyAdd(10)
       }
 
-      "return an error on non existing account" in {
-        whenReady(store.update(account).failed) { e =>
-          e shouldBe an[IllegalArgumentException]
+      "add a negative amount to transactions" in {
+        verifyAdd(-10)
+      }
+
+      "return error on non existing account" in {
+        whenReady(store.add(Transaction(10), accountId).failed) { e =>
+          e shouldBe an[AccountNotFoundException]
         }
       }
     }
@@ -67,7 +72,7 @@ class InMemoryStoreTest extends UnitSpec {
 
       "return error on non existing account" in {
         whenReady(store.delete(accountId).failed) { e =>
-          e shouldBe an[IllegalArgumentException]
+          e shouldBe an[AccountNotFoundException]
         }
       }
     }

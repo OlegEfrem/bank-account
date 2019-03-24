@@ -3,7 +3,7 @@
 # About
 * This is a Bank Account system implementation of the requirements described [here](Assignment.pdf);
 * Live app is deployed on heroku [here](https://bank-account-transfers.herokuapp.com/info);
-* Sample request/response and issue test calls to live app is on apiary [here](https://bankaccount8.docs.apiary.io/#):
+* Sample request/response and issue test calls to live app is on apiary [here](https://bankaccount8.docs.apiary.io/#);
 
 # Available endpoints
 - Create accunt:

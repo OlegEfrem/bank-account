@@ -8,7 +8,7 @@ class AccountTest extends UnitSpec {
     val amount     = 25.12
     val gbp        = Money.of(CurrencyUnit.GBP, amount)
     val usd        = Money.of(CurrencyUnit.USD, 12.05)
-    val id         = AccountId(123, 123456)
+    val id         = AccountId(123, 123456, CurrencyUnit.GBP)
     val gbpAccount = Account(id, gbp)
 
     "plus (+) should" - {

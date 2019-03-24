@@ -15,7 +15,8 @@ trait AccountService {
   /** Deposit money to the account.
     * @param money currency and amount to be deposited, amount be a positive number.
     * @param to the account to which to deposit the money.
-    * @return - the new account state;
+    * @return Future completes with:
+    *         - the new account state;
     *         - error if account not found or money has a negative amount;
     * */
   def deposit(money: Money, to: AccountId): Future[Account]
@@ -23,18 +24,19 @@ trait AccountService {
   /** Withdraw money from the account.
     * @param money currency and amount to be withdrawn, amount must be a positive number.
     * @param from the account from which to withdraw the money.
-    * @return - the new account state;
+    * @return Future completes with:
+    *         - the new account state;
     *         - error if account not found, money has a negative amount or overdraft attempted.
     * */
   def withdraw(money: Money, from: AccountId): Future[Account]
 
   /** Transfer money from one account to another.
-    * Note this is a rich interface function, defined only in terms of other functions of the same trait.
     * @param money amount to be transferred.
     * @param from account from which to withdraw money.
-    * @param to account to whith to deposit money.
-    * @return - new state of from/to accounts;
-    *         - error if there are currency mismatches, negative amounts provided or overdraft attempted.
+    * @param to account to which to deposit money.
+    * @return Future completes with:
+    *         - new state of from/to accounts;
+    *         - error if there are missing accounts, currency mismatches, negative amounts provided or overdraft attempted.
     * */
   def transfer(money: Money, from: AccountId, to: AccountId): Future[(FromAccount, ToAccount)] = {
     for {
@@ -42,24 +44,28 @@ trait AccountService {
       newTo   <- deposit(money, to)
     } yield (newFrom, newTo)
   }
+
   // functions exposed from the DataStore:
   /** Create a new account with zero money.
     * @param accountWith details of the account to be created.
-    * @return - the newly created account with zero money;
+    * @return Future completes with:
+    *         - the newly created account with zero money;
     *         - error if account exists.
     * */
   def create(accountWith: AccountId): Future[Account] = store.create(accountWith)
 
   /** Read account details.
     * @param accountBy account sort code and number to read details for.
-    * @return - the read account if found;
+    * @return Future completes with:
+    *         - the read account if found;
     *         - error if account not found.
     * */
   def read(accountBy: AccountId): Future[Account] = store.read(accountBy)
 
   /** Delete an account.
     * @param accountWith details fo the account to be deleted.
-    * @return - deleted account if account existed;
+    * @return Future completes with:
+    *         - deleted account if account existed;
     *         - error if account didn't exist.
     * */
   def delete(accountWith: AccountId): Future[Account] = store.delete(accountWith)
