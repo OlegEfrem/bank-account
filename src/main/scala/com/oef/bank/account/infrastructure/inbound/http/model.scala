@@ -6,8 +6,8 @@ case class ApiMoney(currency: String, amount: BigDecimal) {
   def toDomain: Money = Money.of(CurrencyUnit.of(currency), amount.underlying())
 }
 
-case class ApiAccountId(sortCode: Int, accNumber: Long, currencyUnit: String) {
-  def toDomain: AccountId = AccountId(sortCode, accNumber, CurrencyUnit.of(currencyUnit))
+case class ApiAccountId(sortCode: Int, accNumber: Long, currency: String) {
+  def toDomain: AccountId = AccountId(sortCode, accNumber, CurrencyUnit.of(currency))
 }
 
 object ApiAccountId {
@@ -21,7 +21,7 @@ case class ApiAccount(id: ApiAccountId, balance: ApiMoney) {
 object ApiAccount {
   def apply(account: Account): ApiAccount =
     ApiAccount(ApiAccountId(account.id), ApiMoney(account.balance.getCurrencyUnit.getCode, account.balance.getAmount))
-  def apply(id: ApiAccountId, amount: BigDecimal): ApiAccount = ApiAccount(id, ApiMoney(id.currencyUnit, amount))
+  def apply(id: ApiAccountId, amount: BigDecimal): ApiAccount = ApiAccount(id, ApiMoney(id.currency, amount))
 }
 
 case class ApiDeposit(to: ApiAccountId, money: ApiMoney)

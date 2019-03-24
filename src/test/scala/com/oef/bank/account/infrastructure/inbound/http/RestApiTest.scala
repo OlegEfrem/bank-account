@@ -21,7 +21,7 @@ class RestApiTest extends ApiSpec with OneInstancePerTest {
     "create a new account responding with HTTP-201" in {
       Put("/v1/account", requestEntity(apiAccount.id)) ~> restApi.routes ~> check {
         status shouldBe Created
-        responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2,"currencyUnit":"GBP"},"balance":{"currency":"GBP","amount":0.00}}"""
+        responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2,"currency":"GBP"},"balance":{"currency":"GBP","amount":0.00}}"""
       }
     }
 
@@ -29,7 +29,7 @@ class RestApiTest extends ApiSpec with OneInstancePerTest {
       store.create(apiAccount.id.toDomain)
       Get("/v1/account?sort-code=1&acc-no=2&currency=GBP") ~> restApi.routes ~> check {
         status shouldBe OK
-        responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2,"currencyUnit":"GBP"},"balance":{"currency":"GBP","amount":0.00}}"""
+        responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2,"currency":"GBP"},"balance":{"currency":"GBP","amount":0.00}}"""
       }
     }
 
@@ -37,7 +37,7 @@ class RestApiTest extends ApiSpec with OneInstancePerTest {
       store.create(apiAccount.id.toDomain)
       Delete("/v1/account", requestEntity(apiAccount.id)) ~> restApi.routes ~> check {
         status shouldBe OK
-        responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2,"currencyUnit":"GBP"},"balance":{"currency":"GBP","amount":0.00}}"""
+        responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2,"currency":"GBP"},"balance":{"currency":"GBP","amount":0.00}}"""
       }
     }
 
@@ -45,7 +45,7 @@ class RestApiTest extends ApiSpec with OneInstancePerTest {
       store.create(apiAccount.id.toDomain)
       Post("/v1/account/deposit", requestEntity(apiDeposit)) ~> restApi.routes ~> check {
         status shouldBe OK
-        responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2,"currencyUnit":"GBP"},"balance":{"currency":"GBP","amount":20.00}}"""
+        responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2,"currency":"GBP"},"balance":{"currency":"GBP","amount":20.00}}"""
       }
     }
 
@@ -54,7 +54,7 @@ class RestApiTest extends ApiSpec with OneInstancePerTest {
       store.add(Transaction(50), apiAccount.id.toDomain)
       Post("/v1/account/withdrawal", requestEntity(apiWithdraw)) ~> restApi.routes ~> check {
         status shouldBe OK
-        responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2,"currencyUnit":"GBP"},"balance":{"currency":"GBP","amount":30.00}}"""
+        responseAs[String] shouldBe """{"id":{"sortCode":1,"accNumber":2,"currency":"GBP"},"balance":{"currency":"GBP","amount":30.00}}"""
       }
     }
 
@@ -68,7 +68,7 @@ class RestApiTest extends ApiSpec with OneInstancePerTest {
         status shouldBe OK
         //scalastyle:off
         responseAs[String] shouldBe
-          """{"fromAccount":{"id":{"sortCode":1,"accNumber":2,"currencyUnit":"GBP"},"balance":{"currency":"GBP","amount":30.00}},"toAccount":{"id":{"sortCode":-1,"accNumber":-22,"currencyUnit":"GBP"},"balance":{"currency":"GBP","amount":20.00}}}""".stripMargin
+          """{"fromAccount":{"id":{"sortCode":1,"accNumber":2,"currency":"GBP"},"balance":{"currency":"GBP","amount":30.00}},"toAccount":{"id":{"sortCode":-1,"accNumber":-22,"currency":"GBP"},"balance":{"currency":"GBP","amount":20.00}}}""".stripMargin
         //scalastyle:on
       }
     }

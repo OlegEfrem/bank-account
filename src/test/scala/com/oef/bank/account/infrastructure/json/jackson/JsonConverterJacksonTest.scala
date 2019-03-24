@@ -11,7 +11,7 @@ class JsonConverterJacksonTest extends UnitSpec {
     val transfer = ApiTransfer(ApiAccountId(1, 2, "GBP"), ApiAccountId(2, 3, "GBP"), ApiMoney("GBP", 20))
     val json     =
       //scalastyle:off
-      """{"from":{"sortCode":1,"accNumber":2,"currencyUnit":"GBP"},"to":{"sortCode":2,"accNumber":3,"currencyUnit":"GBP"},"money":{"currency":"GBP","amount":20}}"""
+      """{"from":{"sortCode":1,"accNumber":2,"currency":"GBP"},"to":{"sortCode":2,"accNumber":3,"currency":"GBP"},"money":{"currency":"GBP","amount":20}}"""
     //scalastyle:on
 
     "convert from json to case class" in {

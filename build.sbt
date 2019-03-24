@@ -42,7 +42,9 @@ libraryDependencies ++= {
   )
 }
 
-resolvers += Resolver.sonatypeRepo("public")
+resolvers ++= Seq(
+  Resolver.sonatypeRepo("public")
+)
 
 enablePlugins(JavaAppPackaging)
 
