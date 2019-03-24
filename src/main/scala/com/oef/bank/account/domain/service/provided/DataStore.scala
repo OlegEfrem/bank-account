@@ -3,6 +3,7 @@ package com.oef.bank.account.domain.service.provided
 import com.oef.bank.account.domain.model._
 import org.joda.money.Money
 import scala.concurrent.Future
+import com.oef.bank.account.domain.model.AccountNotFoundException
 
 /** Trait for data store implementations to be provided by the infrastructure layer.
   * */
@@ -15,7 +16,7 @@ trait DataStore {
     * @param accountWith details of the account to be created.
     * @return Future completed with:
     *         - the newly created account with zero money;
-    *         - [[AccountAlreadyExistsException]] if account exists.
+    *         - AccountAlreadyExistsException if account exists.
     * */
   def create(accountWith: AccountId): Future[Account]
 
@@ -23,7 +24,7 @@ trait DataStore {
     * @param accountBy account sort code and number to read details for.
     * @return Future completed with:
     *         - the read account if found;
-    *         - [[AccountNotFoundException]] if account not found.
+    *         - AccountNotFoundException if account not found.
     * */
   def read(accountBy: AccountId): Future[Account]
 
@@ -32,7 +33,7 @@ trait DataStore {
     * @param to account to add new transaction to.
     * @return Future completed with:
     *         - new balance after adding the new transaction;
-    *         - [[AccountNotFoundException]] if account not found.
+    *         - AccountNotFoundException if account not found.
     * */
   def add(transaction: Transaction, to: AccountId): Future[NewBalance]
 
@@ -40,7 +41,7 @@ trait DataStore {
     * @param by account for which to return the transactions.
     * @return Future completed with:
     *         - transactions for the requested account;
-    *         - [[AccountNotFoundException]] if account not found.
+    *         - AccountNotFoundException if account not found.
     * */
   def readTransactions(by: AccountId): Future[List[Transaction]]
 
@@ -48,7 +49,7 @@ trait DataStore {
     * @param id account for which to return the balance.
     * @return Future completed with:
     *         - balance for requested account;
-    *         - [[AccountNotFoundException]] if account not found.
+    *         - AccountNotFoundException if account not found.
     * */
   def balanceFor(id: AccountId): Future[Money]
 
@@ -56,7 +57,7 @@ trait DataStore {
     * @param accountWith details fo the account to be deleted.
     * @return Future completed with:
     *         - deleted account if account existed;
-    *         - [[AccountNotFoundException]] if account didn't exist.
+    *         - AccountNotFoundException if account didn't exist.
     * */
   def delete(accountWith: AccountId): Future[DeletedAccount]
 

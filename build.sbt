@@ -24,7 +24,7 @@ libraryDependencies ++= {
   val scalaTestVersion = "3.0.7"
   val scalaMockVersion = "3.6.0"
   val jacksonVersion = "2.9.8"
-  val akkaHttpVersion = "10.1.7"
+  val akkaHttpVersion = "10.1.8"
   val akkaVersion = "2.5.21"
   val jodaMoneyVersion = "1.0.1"
   Seq(

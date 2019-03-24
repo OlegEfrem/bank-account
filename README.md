@@ -9,7 +9,7 @@
 - Create accunt:
   - PUT to https://bank-account-transfers.herokuapp.com/v1/account/ with json body:
     ```json
-    {"sortCode":1,"accNumber":2}
+    {"sortCode":1,"accNumber":2, "currency":"GBP"}
     ```
 - Retrieve account: 
   - GET to https://bank-account-transfers.herokuapp.com/v1/account?sort-code=1&acc-no=2;
@@ -17,24 +17,24 @@
 - Delete account: 
   - DELETE to https://bank-account-transfers.herokuapp.com/v1/account/ with json body:
     ```json
-    {"sortCode":1,"accNumber":2}
+    {"sortCode":1,"accNumber":2, "currency":"GBP"}
     ```
 - Deposit money: 
   - POST to https://bank-account-transfers.herokuapp.com/v1/account/deposit with json body:
     ```json
-    {"to":{"sortCode":1,"accNumber":2},"money":{"currency":"GBP","amount":20}}
+    {"to":{"sortCode":1,"accNumber":2, "currency":"GBP"},"money":{"currency":"GBP","amount":20}}
     ```
     to deposit money to the account with sort-code: 1 and account number: 2;
 - Withdraw money:
   - POST to https://bank-account-transfers.herokuapp.com/v1/account/withdrawal with json body:
     ```json
-    {"from":{"sortCode":1,"accNumber":2},"money":{"currency":"GBP","amount":20}}
+    {"from":{"sortCode":1,"accNumber":2, "currency":"GBP"},"money":{"currency":"GBP","amount":20}}
     ```
     to withdraw money from the account with sort-code: 1 and account number: 2;
 - Transfer money: 
   - POST to https://bank-account-transfers.herokuapp.com/v1/account/transfer with json body:
     ```json
-    {"from":{"sortCode":1,"accNumber":2},"to":{"sortCode":2,"accNumber":-3},"money":{"currency":"GBP","amount":20}}
+    {"from":{"sortCode":1,"accNumber":2, "currency":"GBP"},"to":{"sortCode":2,"accNumber":-3, "currency":"GBP"},"money":{"currency":"GBP","amount":20}}
     ```
     to transfer money from the account with sort-code: 1 and account number: 2 to the account 2/3;
 
