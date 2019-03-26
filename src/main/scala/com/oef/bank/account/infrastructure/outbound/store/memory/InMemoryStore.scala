@@ -16,7 +16,7 @@ class InMemoryStore extends DataStore {
 
   override def create(accountWith: AccountId): Future[Account] = {
     Future.fromTry(
-      transactions.putIfAbsent(accountWith, ListBuffer()) match {
+      transactions.putIfAbsent(accountWith, ListBuffer.empty) match {
         case None    => Success(assembleAccount(accountWith, List()))
         case Some(x) => Failure(AccountAlreadyExistsException(s"account exists already: $accountWith"))
       }
@@ -43,6 +43,17 @@ class InMemoryStore extends DataStore {
           val newTxs = txs += transaction
           Success(Money.of(to.currencyUnit, sum(newTxs.toList)))
         case None => notFound(to)
+      }
+    )
+  }
+
+  override def remove(transaction: Transaction, from: AccountId): Future[Unit] = {
+    Future.fromTry(
+      transactions.get(from) match {
+        case Some(txs) =>
+          txs -= transaction
+          Success(())
+        case None => notFound(from)
       }
     )
   }

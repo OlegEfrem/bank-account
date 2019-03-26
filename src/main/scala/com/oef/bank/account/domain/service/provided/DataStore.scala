@@ -42,6 +42,15 @@ trait DataStore {
     *         - transactions for the requested account;
     *         - AccountNotFoundException if account not found.
     * */
+  /** Rollbacks a transaction when needed (in case of a failure for example).
+    * @param transaction transaction to be rollback-ed.
+    * @on which account transactions belongs to.
+    * @return Fututure completed with:
+    *         - Success in case of a successful rollback;
+    *         - Failure in case of an unsuccessful rollback or a non existing account.
+    * */
+  def remove(transaction: Transaction, from: AccountId): Future[Unit]
+
   def readTransactions(by: AccountId): Future[List[Transaction]]
 
   /** Retrieves balance for given account id.

@@ -63,6 +63,31 @@ class InMemoryStoreTest extends UnitSpec {
       }
     }
 
+    "remove should" - {
+      val store        = new InMemoryStore
+      val transaction1 = Transaction(10)
+      val transaction2 = Transaction(10)
+      store.create(accountId)
+      store.add(transaction1, accountId).futureValue
+      store.add(transaction2, accountId).futureValue
+
+      "remove an existing transaction" in {
+        store.readTransactions(accountId).futureValue shouldBe List(transaction1, transaction2)
+        store.remove(transaction1, accountId).futureValue
+        store.readTransactions(accountId).futureValue shouldBe List(transaction2)
+      }
+
+      "do nothing for a non existing transaction" in {
+        store.remove(Transaction(20), accountId).futureValue should be(())
+      }
+
+      "return error on non existing account" in {
+        whenReady(store.remove(Transaction(10), AccountId(-1, -1, CurrencyUnit.GBP)).failed) { e =>
+          e shouldBe an[AccountNotFoundException]
+        }
+      }
+    }
+
     "delete should" - {
       "remove an existing account returning deleted account" in {
         val store = new InMemoryStore

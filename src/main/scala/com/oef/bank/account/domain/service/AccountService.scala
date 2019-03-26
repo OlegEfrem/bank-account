@@ -1,11 +1,11 @@
 package com.oef.bank.account.domain.service
 
-import com.oef.bank.account.domain.model.{Account, AccountId}
+import com.oef.bank.account.domain.model.{Account, AccountId, Transaction}
 import com.oef.bank.account.domain.service.implementations.SimpleAccountService
 import com.oef.bank.account.domain.service.provided.DataStore
 import org.joda.money.Money
+
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
 
 trait AccountService {
   protected val store: DataStore
@@ -38,12 +38,7 @@ trait AccountService {
     *         - new state of from/to accounts;
     *         - error if there are missing accounts, currency mismatches, negative amounts provided or overdraft attempted.
     * */
-  def transfer(money: Money, from: AccountId, to: AccountId): Future[(FromAccount, ToAccount)] = {
-    for {
-      newFrom <- withdraw(money, from)
-      newTo   <- deposit(money, to)
-    } yield (newFrom, newTo)
-  }
+  def transfer(money: Money, from: AccountId, to: AccountId): Future[(FromAccount, ToAccount)]
 
   // functions exposed from the DataStore:
   /** Create a new account with zero money.

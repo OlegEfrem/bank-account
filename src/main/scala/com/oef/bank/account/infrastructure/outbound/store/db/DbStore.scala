@@ -14,6 +14,8 @@ class DbStore extends DataStore {
 
   override def add(transaction: Transaction, to: AccountId): Future[NewBalance] = ???
 
+  override def remove(transaction: Transaction, from: AccountId): Future[Unit] = ???
+
   override def readTransactions(by: AccountId): Future[List[Transaction]] = ???
 
   override def balanceFor(id: AccountId): Future[NewBalance] = ???

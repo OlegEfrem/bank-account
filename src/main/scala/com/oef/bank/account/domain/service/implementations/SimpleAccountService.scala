@@ -1,12 +1,12 @@
 package com.oef.bank.account.domain.service.implementations
 
-import com.oef.bank.account.domain.model.{Account, AccountId}
-import com.oef.bank.account.domain.service.{AccountService, Implicits}
+import com.oef.bank.account.domain.model.{Account, AccountId, Transaction}
 import com.oef.bank.account.domain.service.provided.DataStore
+import com.oef.bank.account.domain.service.{AccountService, Implicits}
 import org.joda.money.Money
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.Try
+import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
 
 class SimpleAccountService(override protected val store: DataStore) extends AccountService with Implicits {
 
@@ -18,13 +18,32 @@ class SimpleAccountService(override protected val store: DataStore) extends Acco
   }
 
   override def withdraw(money: Money, from: AccountId): Future[Account] = {
+    val transaction = money.negated().toTransaction
+    withdraw(transaction, money, from)
+  }
+
+  def transfer(money: Money, from: AccountId, to: AccountId): Future[(FromAccount, ToAccount)] = {
+    val withdrawal = money.negated.toTransaction
+    val result = for {
+      newFrom <- withdraw(withdrawal, money, from)
+      newTo   <- deposit(money, to)
+    } yield (newFrom, newTo)
+    result recoverWith {
+      case e: Throwable =>
+        store.remove(withdrawal, from) transform {
+          case Success(_)   => Failure(e)
+          case Failure(err) => Failure(err)
+        }
+    }
+  }
+
+  private def withdraw(transaction: Transaction, money: Money, from: AccountId): Future[Account] = {
     for {
       _          <- checkRequirements(money, from)
       balance    <- store.balanceFor(from)
       _          <- forbidOverdraft(balance, money)
-      newBalance <- store.add(money.negated().toTransaction, from)
+      newBalance <- store.add(transaction, from)
     } yield Account(from, newBalance)
-
   }
 
   private def checkRequirements(money: Money, accountId: AccountId): Future[Unit] = {
