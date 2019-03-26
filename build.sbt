@@ -43,7 +43,9 @@ libraryDependencies ++= {
 }
 
 resolvers ++= Seq(
-  Resolver.sonatypeRepo("public")
+  Resolver.sonatypeRepo("public"),
+  "bintray-sbt-plugin-releases" at "http://dl.bintray.com/content/sbt/sbt-plugin-releases",
+  "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 )
 
 enablePlugins(JavaAppPackaging)
