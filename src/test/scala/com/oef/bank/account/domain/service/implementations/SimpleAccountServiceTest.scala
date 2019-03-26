@@ -1,13 +1,10 @@
 package com.oef.bank.account.domain.service.implementations
 
-import java.util.concurrent.Executors
 import com.oef.bank.UnitSpec
-import com.oef.bank.account.domain.model.{Account, AccountId, AccountNotFoundException}
+import com.oef.bank.account.domain.model.{Account, AccountNotFoundException}
 import com.oef.bank.account.domain.service.provided.DataStore
 import com.oef.bank.account.infrastructure.outbound.store.memory.InMemoryStore
-import org.joda.money.CurrencyUnit
 import org.scalatest.OneInstancePerTest
-import scala.concurrent.{ExecutionContext, Future}
 
 class SimpleAccountServiceTest extends UnitSpec with OneInstancePerTest {
   private val store: DataStore = new InMemoryStore
@@ -126,34 +123,6 @@ class SimpleAccountServiceTest extends UnitSpec with OneInstancePerTest {
         }
         store.read(sourceAccount.id).futureValue.balance shouldBe sourceAccount.balance
       }
-    }
-
-    "simple concurrency is not broken test" in {
-      val service       = new SimpleAccountService(new InMemoryStore)
-      implicit val ec   = ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(8))
-      val testUnit      = 5000
-      val sourceAccount = createAccountWith(testUnit)
-      val targetAccount = createAccountWith(testUnit)
-
-      def spawnTransfers(result: List[Future[Unit]], times: Int): List[Future[Unit]] = {
-        if (times == 0) result
-        else {
-          val iteration = List(
-            service.transfer(money(1), sourceAccount.id, targetAccount.id).map(_ => ()),
-            service.transfer(money(1), targetAccount.id, sourceAccount.id).map(_ => ())
-          )
-          spawnTransfers(result ::: iteration, times - 1)
-        }
-      }
-
-      /*
-        We perform 5000 concurrent A -> B, B -> A transfers with amount 1
-        That must produce same balances after execution
-       */
-      Future.sequence(spawnTransfers(Nil, testUnit)).futureValue
-
-      service.read(sourceAccount.id).futureValue shouldBe sourceAccount
-      service.read(targetAccount.id).futureValue.balance shouldBe targetAccount
     }
 
   }
